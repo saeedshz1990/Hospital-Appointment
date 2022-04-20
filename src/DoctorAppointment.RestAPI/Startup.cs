@@ -1,3 +1,7 @@
+using System;
+using System.Data;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using DoctorAppointment.Infrastructure.Application;
 using DoctorAppointment.Persistence.EF;
 using DoctorAppointment.Persistence.EF.Appointments;
@@ -11,6 +15,7 @@ using DoctorAppointment.Services.Patients;
 using DoctorAppointment.Services.Patients.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,23 +34,36 @@ namespace DoctorAppointment.RestAPI
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
 
             services.AddControllers();
 
             services.AddDbContext<ApplicationDbContext>
                 (_ => _.UseSqlServer(Configuration["ConnectionString"]));
-            services.AddScoped<UnitOfWork, EFUnitOfWork>();
 
-            services.AddScoped<DoctorRepository, EFDoctorRepository>();
-            services.AddScoped<DoctorService, DoctorAppService>();
-            
-            services.AddScoped<PatientRepository, EFPatientRepository>();
-            services.AddScoped<PatientService, PatientAppService>();
 
-            services.AddScoped<AppointmentRepository, EFAppointmentRepository>();
-            services.AddScoped<AppointmentService, AppointmentAppService>();
+            var builder = new ContainerBuilder();
+            builder.RegisterType<EFDoctorRepository>().As<DoctorRepository>();
+            builder.RegisterType<DoctorAppService>().As<DoctorService>();
+            builder.RegisterType<EFUnitOfWork>().As<UnitOfWork>();
+            builder.Populate(services);
+
+            builder.Register(_ => new SqlConnection(Configuration["ConnectionString"]))
+                .As<IDbConnection>();
+
+            var cointainer = builder.Build();
+            return new AutofacServiceProvider(cointainer);
+            //services.AddScoped<UnitOfWork, EFUnitOfWork>();
+
+            //services.AddScoped<DoctorRepository, EFDoctorRepository>();
+            //services.AddScoped<DoctorService, DoctorAppService>();
+
+            //services.AddScoped<PatientRepository, EFPatientRepository>();
+            //services.AddScoped<PatientService, PatientAppService>();
+
+            //services.AddScoped<AppointmentRepository, EFAppointmentRepository>();
+            //services.AddScoped<AppointmentService, AppointmentAppService>();
 
 
             services.AddSwaggerGen(c =>
