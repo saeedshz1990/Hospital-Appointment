@@ -20,21 +20,18 @@ namespace DoctorAppointment.Services.Appointments
 
         public void Add(AddAppointmentDto dto)
         {
+            var countAppointments = _repository
+                .GetAppointmentByDoctortById(dto.DoctorId, dto.Date);
+            //var countpatiens = _repository
+            //    .GetAppointmentByPatientById(dto.PatientId, dto.Date);
             var appointment = new Appointment
             {
                 PatientId = dto.PatientId,
                 DoctorId = dto.DoctorId,
                 Date = dto.Date,
             };
-
-            var countPatient = _repository
-                .GetAppointmentByPatientById(dto.PatientId, dto.Date);
-
-
-            var countDoctor = _repository
-                .GetAppointmentByDoctortById(dto.DoctorId, dto.Date);
-
-            if (countPatient == null && countDoctor == null)
+            
+            if (countAppointments < 5)
             {
                 _repository.Add(appointment);
                 _unitOfWork.Commit();

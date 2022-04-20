@@ -65,31 +65,19 @@ namespace DoctorAppointment.Persistence.EF.Appointments
             return _appointments.Find(id);
         }
 
-        public List<GetAppointmentDto> GetAppointmentByPatientById(int patientId,DateTime date)
+        public int GetAppointmentByPatientById(int patientId,DateTime date)
         {
             var checkedPatientById = _appointments
-                .Where(_ => _.PatientId == patientId && _.Date==date)
-                .Select(_ => new GetAppointmentDto
-                {
-                    Id = _.Id,
-                    Date = _.Date.Date,
-                    DoctorId = _.DoctorId,
-                    PatientId = _.PatientId
-                }).ToList();
+                .Count(_ => _.PatientId == patientId && _.Date == date);
+            
             return checkedPatientById;
         }
 
-        public List<GetAppointmentDto> GetAppointmentByDoctortById(int doctorId, DateTime date)
+        public int GetAppointmentByDoctortById(int doctorId, DateTime date)
         {
             var checkedDoctorById = _appointments
-                .Where(_ => _.DoctorId == doctorId && _.Date == date)
-                .Select(_ => new GetAppointmentDto
-                {
-                    Id = _.Id,
-                    Date = _.Date.Date,
-                    DoctorId = _.DoctorId,
-                    PatientId = _.PatientId
-                }).ToList();
+                .Count(_ => _.DoctorId == doctorId && _.Date == date);
+                
             return checkedDoctorById;
 
         }

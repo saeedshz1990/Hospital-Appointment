@@ -13,8 +13,8 @@ namespace DoctorAppointment.Services.Appointments.Contracts
         void Delete(int id);
         void Update(int id, Appointment appointment);
         Appointment FindById(int id);
-        List<GetAppointmentDto> GetAppointmentByPatientById(int patientId, DateTime date);
-        List<GetAppointmentDto> GetAppointmentByDoctortById(int doctorId, DateTime date);
+        int GetAppointmentByPatientById(int patientId, DateTime date);
+        int GetAppointmentByDoctortById(int doctorId, DateTime date);
 
     }
 }
